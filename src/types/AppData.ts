@@ -1,3 +1,10 @@
+export enum SortEnum {
+    dateAsc = 'dateAsc',
+    dateDesc = 'dateDesc',
+    priceAsc = 'priceAsc',
+    priceDesc = 'priceDesc'
+}
+
 export type MainData = {
     itemsCount: number,
     itemsList: Item[]
@@ -37,4 +44,14 @@ export type MergedData = {
         marketplace: number
     }
     mergedItemsList: Item[]
+}
+
+export type RequestBody = {
+    requestId: string
+    text: string
+    count: number
+    pageSet: {
+        page: number
+        sortBy: string
+    }
 }

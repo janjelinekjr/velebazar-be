@@ -1,4 +1,4 @@
-import {MainData, MergedData} from "./types/AppData.js";
+import {MainData, MergedData, RequestBody} from "./types/AppData.js";
 import {getAukroData, getBazosData, getMarketplaceData} from "./dataUtils/scrpFn.js";
 import axios from "axios";
 import {formatFetchedSbazarData} from "./utils/formatUtils.js";
@@ -8,6 +8,9 @@ import cors from 'cors';
 import puppeteer from 'puppeteer-extra';
 import StealthPlugin from 'puppeteer-extra-plugin-stealth';
 import dotenv from 'dotenv';
+import {v4 as uuidv4} from 'uuid'
+import NodeCache from 'node-cache'
+
 dotenv.config()
 
 const app = express()
@@ -20,15 +23,39 @@ app.use(cors({
     methods: ["GET", "POST", 'PUT', 'PATCH', 'DELETE', 'OPTIONS']
 }))
 
-app.post('/searchedItems', async (req: any, res: any) => {
-    const searchedQuery: string = req.body.text
-    const requiredCount: number = req.body.count
+const dataSetCache = new NodeCache({stdTTL: 3600})
+
+function cacheData(req: any, res: any, next: any) {
+    const reqPayload: RequestBody = req.body
+
+    const searchedQuery: string = reqPayload.text
+    const requestId: string = reqPayload.requestId
+
+    if (dataSetCache.has(`${requestId}:${searchedQuery}`)) {
+        const data = dataSetCache.get(`${requestId}:${searchedQuery}`)
+
+        res.status(200).json({
+            data: {
+                data,
+            }
+        })
+    } else {
+        next()
+    }
+}
+
+async function fetchAndSendData(req: any, res: any, next: any) {
+    const reqPayload: RequestBody = req.body
+
+    const searchedQuery: string = reqPayload.text
+    const requiredCount: number = reqPayload.count
+    const requestId: string = uuidv4()
 
     // get bazos data
     const bazosData = await getBazosData(searchedQuery, requiredCount)
 
     // get marketplace data
-    const marketplaceData = await getMarketplaceData(searchedQuery,requiredCount)
+    const marketplaceData = await getMarketplaceData(searchedQuery, requiredCount)
 
     // get sbazar data
     const sbazarFetch = await axios.get(`https://www.sbazar.cz/api/v1/items/search?offset=0&sort=-create_date&phrase=${searchedQuery}&limit=${requiredCount}`)
@@ -59,13 +86,21 @@ app.post('/searchedItems', async (req: any, res: any) => {
         ]
     }
 
+    const responseData = {
+        requestId,
+        totalPages: Math.ceil(mergedData.mergedItemsList.length / 20),
+        ...mergedData,
+    }
+
+    dataSetCache.set(`${requestId}:${searchedQuery}`, responseData)
+
     // response
     res.status(200).json({
-        data: {
-            ...mergedData,
-        }
-    });
-})
+        data: responseData
+    })
+}
+
+app.post('/searchedItems', cacheData, fetchAndSendData)
 
 const port = process.env.PORT || 3000;
 const server = app.listen(port, () => {
