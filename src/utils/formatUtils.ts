@@ -1,10 +1,17 @@
 import {AukroResultItem, FetchSbazarGoodsResult, Page} from "../types/FetchData.js";
-import {MainData} from "../types/AppData.js";
+import {Item, MainData} from "../types/AppData.js";
 
 export const formatDate = (date: string) => new Date(date).toLocaleDateString().replaceAll(" ", "")
 
 export function trimAllSpaces(value: string): string {
     return value.replaceAll(" ", "")
+}
+
+export function getPaginatedData(page: number, offset: number, data: Item[]): Item[] {
+    const startIndex: number = (page - 1) * offset
+    const endIndex: number = page * offset
+
+    return data.slice(startIndex, endIndex)
 }
 
 export function formatFetchedSbazarData(data: FetchSbazarGoodsResult): MainData {

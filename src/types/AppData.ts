@@ -46,12 +46,18 @@ export type MergedData = {
     mergedItemsList: Item[]
 }
 
+export interface ResponseData extends MergedData {
+    requestId: string
+    totalPages: number
+}
+
 export type RequestBody = {
     requestId: string
     text: string
     count: number
     pageSet: {
         page: number
+        offset: number
         sortBy: string
     }
 }
