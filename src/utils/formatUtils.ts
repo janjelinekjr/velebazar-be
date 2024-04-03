@@ -1,15 +1,22 @@
-import {AukroResultItem, FetchAukroGoodsResult, FetchSbazarGoodsResult, Page} from "../types/FetchData.js";
+import {AukroResultItem, FetchSbazarGoodsResult, Page} from "../types/FetchData.js";
 import {MainData} from "../types/AppData.js";
+
+export const formatDate = (date: string) => new Date(date).toLocaleDateString().replaceAll(" ", "")
+
+export function trimAllSpaces(value: string): string {
+    return value.replaceAll(" ", "")
+}
 
 export function formatFetchedSbazarData(data: FetchSbazarGoodsResult): MainData {
     return {
-        itemsCount: data?.pagination?.total?.toString(),
+        itemsCount: Number(trimAllSpaces(data?.pagination?.total?.toString())),
         itemsList: data?.results?.map(item => {
             return {
                 id: item.id,
                 title: item.name,
-                date: item.create_date,
-                price: item.price.toString(),
+                date: formatDate(item.create_date),
+                price: trimAllSpaces(item.price.toString()),
+                currency: "Kč",
                 auction: false,
                 image: `https:${item.images[0]?.url}?fl=exf|res,280,280,3|jpg,80,,1`,
                 top: item.topped,
@@ -29,14 +36,14 @@ export function formatFetchedSbazarData(data: FetchSbazarGoodsResult): MainData 
 
 export function formatFetchedAukroData(items: AukroResultItem[], page: Page | {}): MainData {
     return {
-        itemsCount: (page as Page)?.totalElements?.toString(),
+        itemsCount: Number(trimAllSpaces((page as Page)?.totalElements?.toString())),
         itemsList: items?.map(item => {
             return {
                 id: item.itemId,
                 title: item.itemName,
-                date: item.startingTime,
+                date: formatDate(item.startingTime),
                 auction: item.auction,
-                price: item.price.amount.toString(),
+                price: trimAllSpaces(item.price.amount.toString()),
                 currency: item.price.currency,
                 image: item.titleImageUrl,
                 top: item.ppPriorityList,

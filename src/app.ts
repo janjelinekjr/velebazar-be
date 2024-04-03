@@ -62,7 +62,7 @@ app.post('/searchedItems', async (req: any, res: any) => {
     // response
     res.status(200).json({
         data: {
-            mergedData,
+            ...mergedData,
         }
     });
 })

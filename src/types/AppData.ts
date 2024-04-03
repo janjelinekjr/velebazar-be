@@ -1,5 +1,5 @@
 export type MainData = {
-    itemsCount: string,
+    itemsCount: number,
     itemsList: Item[]
 }
 
@@ -8,7 +8,7 @@ export type Item = {
     title: string,
     price: string,
     date: string,
-    currency?: string,
+    currency: string,
     location: {
         location: string,
         region: string
@@ -25,10 +25,10 @@ export type Item = {
 
 export type MergedData = {
     totalItemsCount: {
-        bazos: string
-        sbazar: string
-        aukro: string
-        marketplace: string
+        bazos: number
+        sbazar: number
+        aukro: number
+        marketplace: number
     }
     currentItemsCount: {
         bazos: number,

@@ -36,10 +36,11 @@ export const getBazosData = async (searchedText: string, count: number) => {
                 const top = item.querySelector('.velikost10')?.textContent.includes("TOP")
 
                 return {
-                    id,
+                    id: `baz${new Date().valueOf() * Number(id)}`,
                     title,
-                    price: price.trimStart(),
-                    date: date.substring(date.indexOf('[') + 1, date.indexOf(']')),
+                    price,
+                    currency: "",
+                    date: date.substring(date.indexOf('[') + 1, date.indexOf(']')).replaceAll(" ", ""),
                     location: {
                         location: location.replace(/\d+/g, '').trimEnd(),
                         region: ''
@@ -62,7 +63,7 @@ export const getBazosData = async (searchedText: string, count: number) => {
     }
 
     const bazosData: MainData = {
-        itemsCount: bazosItemsCount,
+        itemsCount: Number(bazosItemsCount.replaceAll(" ", "")),
         itemsList: bazosItemsArr
     }
 
@@ -135,9 +136,10 @@ export const getMarketplaceData = async (searchedText: string, count: number) =>
                 const top = false
 
                 return {
-                    id,
+                    id: `mar${new Date().valueOf() * Number(id)}`,
                     title,
                     price,
+                    currency: "",
                     date,
                     location: {
                         location,
@@ -146,7 +148,7 @@ export const getMarketplaceData = async (searchedText: string, count: number) =>
                     image,
                     bazar: 'marketplace',
                     auction: false,
-                    link,
+                    link: `https://cs-cz.facebook.com${link}`,
                     top
                 }
             })
@@ -174,7 +176,7 @@ export const getMarketplaceData = async (searchedText: string, count: number) =>
     }
 
     const marketplaceData: MainData = {
-        itemsCount: `${itemsCount.toString()}+`,
+        itemsCount: itemsCount,
         itemsList: marketplaceItemsArr
     }
 
