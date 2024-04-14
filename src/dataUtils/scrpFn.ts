@@ -11,6 +11,8 @@ export const getBazosData = async (searchedText: string, count: number) => {
     const browser: Browser = await puppeteer.launch({headless: true})
     const page = await browser.newPage()
     await page.goto(url, {waitUntil: 'load'})
+    await page.waitForSelector('.cc-nb-reject')
+    await page.click('.cc-nb-reject')
 
     let pageCount: number = 0
     const reqCount = count
@@ -38,7 +40,7 @@ export const getBazosData = async (searchedText: string, count: number) => {
                 return {
                     id: `baz${new Date().valueOf() * Number(id)}`,
                     title,
-                    price,
+                    price: price.trimStart(),
                     currency: "",
                     date: date.substring(date.indexOf('[') + 1, date.indexOf(']')).replaceAll(" ", ""),
                     location: {
