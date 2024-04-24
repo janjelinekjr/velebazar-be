@@ -23,6 +23,7 @@ app.use(cors({
     methods: ["GET", "POST", 'PUT', 'PATCH', 'DELETE', 'OPTIONS']
 }))
 
+// cache data
 const dataSetCache = new NodeCache({stdTTL: 3600})
 
 function cacheData(req: any, res: any, next: any) {
@@ -46,6 +47,7 @@ function cacheData(req: any, res: any, next: any) {
     }
 }
 
+// main response data
 async function fetchAndSendData(req: any, res: any, next: any) {
     const reqPayload: RequestBody = req.body
 
@@ -109,8 +111,10 @@ async function fetchAndSendData(req: any, res: any, next: any) {
     })
 }
 
+// main data endpoint
 app.post('/searchedItems', cacheData, fetchAndSendData)
 
+// server handling
 const port = process.env.PORT || 3000;
 const server = app.listen(port, () => {
     console.log(`App running on port ${port}...`);
