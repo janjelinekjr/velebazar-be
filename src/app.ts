@@ -1,4 +1,4 @@
-import {Item, MainData, MergedData, RequestBody, ResponseData} from "./types/AppData.js";
+import {MainData, MergedData, RequestBody, ResponseData} from "./types/AppData.js";
 import {getAukroData, getBazosData, getMarketplaceData} from "./dataUtils/scrpFn.js";
 import axios from "axios";
 import {formatFetchedSbazarData, getPaginatedData} from "./utils/formatUtils.js";

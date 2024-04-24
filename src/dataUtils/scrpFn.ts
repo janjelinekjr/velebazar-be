@@ -91,7 +91,7 @@ export const getAukroData = async (searchedText: string, count: number) => {
         }
     });
     await page.type('#headerSearchInput', searchedText)
-    await page.click('.auk-button.transition-base.size-sm-normal.tw-rounded-full')
+    await page.click('.header-search-container button')
 
     await new Promise(resolve => setTimeout(resolve, 500))
 
