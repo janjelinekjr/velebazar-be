@@ -1,7 +1,7 @@
 import {MainData, MergedData, RequestBody, ResponseData} from "./types/AppData.js";
 import {getAukroData, getBazosData, getMarketplaceData} from "./dataUtils/scrpFn.js";
 import axios from "axios";
-import {formatFetchedSbazarData, getPaginatedData} from "./utils/formatUtils.js";
+import {formatFetchedSbazarData, getPaginatedAndSortData, randomSortArray} from "./utils/formatUtils.js";
 
 import express from 'express';
 import cors from 'cors';
@@ -33,7 +33,7 @@ function cacheData(req: any, res: any, next: any) {
 
     if (dataSetCache.has(`${requestId}:${searchedQuery}`)) {
         const data: any = dataSetCache.get(`${requestId}:${searchedQuery}`)
-        const paginatedDataList = getPaginatedData(reqPayload.pageSet.page, reqPayload.pageSet.offset, data.mergedItemsList)
+        const paginatedDataList = getPaginatedAndSortData(reqPayload.pageSet.page, reqPayload.pageSet.offset, reqPayload.pageSet.sortBy, data.mergedItemsList)
 
         res.status(200).json({
             data: {
@@ -52,6 +52,8 @@ async function fetchAndSendData(req: any, res: any, next: any) {
     const searchedQuery: string = reqPayload.text
     const requiredCount: number = reqPayload.count
     const offset: number = reqPayload.pageSet.offset
+    const page: number = reqPayload.pageSet.page
+    const sortBy: string = reqPayload.pageSet.sortBy
     const requestId: string = uuidv4()
 
     // get bazos data
@@ -93,13 +95,17 @@ async function fetchAndSendData(req: any, res: any, next: any) {
         requestId,
         totalPages: Math.ceil(mergedData.mergedItemsList.length / offset),
         ...mergedData,
+        mergedItemsList: randomSortArray(mergedData.mergedItemsList)
     }
 
     dataSetCache.set(`${requestId}:${searchedQuery}`, responseData)
 
     // response
     res.status(200).json({
-        data: responseData
+        data: {
+            ...responseData,
+            mergedItemsList: getPaginatedAndSortData(page, offset, sortBy, responseData.mergedItemsList)
+        }
     })
 }
 

@@ -1,17 +1,44 @@
 import {AukroResultItem, FetchSbazarGoodsResult, Page} from "../types/FetchData.js";
-import {Item, MainData} from "../types/AppData.js";
+import {Item, MainData, SortEnum} from "../types/AppData.js";
 
 export const formatDate = (date: string) => new Date(date).toLocaleDateString().replaceAll(" ", "")
 
-export function trimAllSpaces(value: string): string {
+export const trimAllSpaces = (value: string): string => {
     return value.replaceAll(" ", "")
 }
 
-export function getPaginatedData(page: number, offset: number, data: Item[]): Item[] {
+export const getPaginatedAndSortData = (page: number, offset: number, sortBy: string, data: Item[]): Item[] => {
     const startIndex: number = (page - 1) * offset
     const endIndex: number = page * offset
+    const sortedData = sortItemsList(data, sortBy)
 
-    return data.slice(startIndex, endIndex)
+    return sortedData.slice(startIndex, endIndex)
+}
+
+export const randomSortArray = (array: Array<any>) => {
+    let newArray = array.slice()
+    for (let i = newArray.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        const temp = newArray[i];
+        newArray[i] = newArray[j];
+        newArray[j] = temp;
+    }
+    return newArray
+}
+
+export const sortItemsList = (items: Item[], sortBy: string): Item[] => {
+        switch (sortBy) {
+            case SortEnum.dateAsc:
+                return items?.sort((date1, date2) => (Number(new Date(date1.date)) - Number(new Date(date2.date))))
+            case SortEnum.dateDesc:
+                return items?.sort((date1, date2) => (Number(new Date(date2.date)) - Number(new Date(date1.date))))
+            case SortEnum.priceAsc:
+                return items.sort((price1, price2) => Number(price1.price.slice(0, price1.price.lastIndexOf(" "))) - Number(price2.price.slice(0, price2.price.lastIndexOf(" "))))
+            case SortEnum.priceDesc:
+                return items.sort((price1, price2) => Number(price2.price.slice(0, price2.price.lastIndexOf(" "))) - Number(price1.price.slice(0, price1.price.lastIndexOf(" "))))
+            default:
+                return items
+        }
 }
 
 export function formatFetchedSbazarData(data: FetchSbazarGoodsResult): MainData {
